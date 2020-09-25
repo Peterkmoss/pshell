@@ -1,17 +1,19 @@
 CC = gcc
 CFLAGS = -Wall
 
-all: options mysh
-	${CC} ${CFLAGS} *.o -o mysh
+SHELLNAME = pshell
 
-mysh: mysh.c builtins
-	${CC} ${CFLAGS} -c mysh.c
+all: options ${SHELLNAME}
+	${CC} ${CFLAGS} *.o -o ${SHELLNAME}
+
+$(SHELLNAME): ${SHELLNAME}.c builtins
+	${CC} ${CFLAGS} -c ${SHELLNAME}.c
 
 builtins: builtins.h builtins.c
 	${CC} ${CFLAGS} -c builtins.c
 
 options:
-	@echo "Compiling mysh"
+	@echo "Compiling ${SHELLNAME}"
 	@echo ""
 	@echo "Build options:"
 	@echo "CFLAGS   = ${CFLAGS}"
@@ -19,4 +21,4 @@ options:
 	@echo ""
 
 clean:
-	rm -f *.o
+	rm -f *.o ${SHELLNAME}
