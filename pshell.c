@@ -1,10 +1,16 @@
 #include "builtins.h"
+#include "sighandlers.h"
 #include <limits.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#define SPLIT_BUFSIZE 64
+#define SPLIT_DELIM " \t\r\n\a"
+#define MAX_CWD INT_MAX
 
 char *sh_read_line() {
   char *line = NULL;
@@ -19,15 +25,13 @@ char *sh_read_line() {
   return line;
 }
 
-#define SPLIT_BUFSIZE 64
-#define SPLIT_DELIM " \t\r\n\a"
 char **sh_split_line(char *line) {
   int bufsize = SPLIT_BUFSIZE;
   char **args = malloc(bufsize * sizeof(char *));
   char *arg;
 
   if (!args) {
-    fprintf(stderr, "mysh: error in allocating memory");
+    fprintf(stderr, "sh: error in allocating memory");
     exit(EXIT_FAILURE);
   }
 
@@ -40,7 +44,7 @@ char **sh_split_line(char *line) {
       bufsize += SPLIT_BUFSIZE;
       args = realloc(args, bufsize * sizeof(char *));
       if (!args) {
-        fprintf(stderr, "mysh: error in allocating memory");
+        fprintf(stderr, "sh: error in allocating memory");
         exit(EXIT_FAILURE);
       }
     }
@@ -55,19 +59,23 @@ int sh_launch(char **args) {
   pid_t pid;
   int status;
 
+  // Handle interrupts of process
+  signal(SIGINT, child_interupt);
+
   pid = fork();
   if (pid == 0) {
     if (execvp(args[0], args) == -1)
-      perror("mysh");
+      perror("sh");
     exit(EXIT_FAILURE);
   } else if (pid < 0) {
     // Error forking
-    perror("mysh");
+    perror("sh");
   } else {
     do {
       waitpid(pid, &status, WUNTRACED);
     } while (!WIFEXITED(status) && !WIFSIGNALED(status));
   }
+
   return status;
 }
 
@@ -88,13 +96,14 @@ int sh_exec(char **args) {
   return sh_launch(args);
 }
 
-#define MAX_CWD INT_MAX
-void mysh_loop(void) {
+void sh_loop(void) {
   char *line, *cwd, *promt;
   char **args;
   int status = 0;
 
   do {
+    signal(SIGINT, SIG_IGN);
+
     cwd = getcwd(NULL, 0);
     if (status)
       promt = "\033[32m> \033[0m";
@@ -112,7 +121,7 @@ void mysh_loop(void) {
 }
 
 int main(int argc, char *argv[]) {
-  mysh_loop();
+  sh_loop();
 
   return EXIT_SUCCESS;
 }

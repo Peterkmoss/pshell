@@ -1,9 +1,9 @@
 #ifndef BUILTINS_H_INCLUDED
 #define BUILTINS_H_INCLUDED
 
-int mysh_cd(char **args);
-int mysh_help(char **args);
-int mysh_exit(char **args);
+int sh_cd(char **args);
+int sh_help(char **args);
+int sh_exit(char **args);
 
 extern char *builtin_cmds[];
 

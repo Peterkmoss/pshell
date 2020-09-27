@@ -1,27 +1,28 @@
 #include "builtins.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 char *builtin_cmds[] = {"cd", "help", "exit"};
 
-int (*builtin_func[])(char **) = {&mysh_cd, &mysh_help, &mysh_exit};
+int (*builtin_func[])(char **) = {&sh_cd, &sh_help, &sh_exit};
 
 int cnt_builtins() { return sizeof(builtin_cmds) / sizeof(char *); }
 
-int mysh_cd(char **args) {
+int sh_cd(char **args) {
   if (args[1] == NULL) {
-    fprintf(stderr, "mysh: expected argument to \"cd\"\n");
+    fprintf(stderr, "sh: expected argument to \"cd\"\n");
   } else {
     if (chdir(args[1]) != 0) {
-      perror("mysh");
+      perror("sh");
     }
   }
   return 0;
 }
 
-int mysh_help(char **args) {
+int sh_help(char **args) {
   int i;
-  printf("Peter Moss' MYSH\n");
+  printf("Peter Moss' pshell\n");
   printf("Type program names and arguments, and hit enter.\n");
   printf("The following are built in:\n");
 
@@ -33,4 +34,4 @@ int mysh_help(char **args) {
   return 1;
 }
 
-int mysh_exit(char **args) { return 0; }
+int sh_exit(char **args) { exit(0); }

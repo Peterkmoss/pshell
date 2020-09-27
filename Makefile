@@ -1,19 +1,24 @@
 CC = gcc
 CFLAGS = -Wall
 
-SHELLNAME = pshell
+SH = pshell
+SIG=sighandlers
+BI=builtins
 
-all: options ${SHELLNAME}
-	${CC} ${CFLAGS} *.o -o ${SHELLNAME}
+all: options ${SH}
+	${CC} ${CFLAGS} *.o -o ${SH}
 
-$(SHELLNAME): ${SHELLNAME}.c builtins
-	${CC} ${CFLAGS} -c ${SHELLNAME}.c
+$(SH): ${SH}.c ${BI} ${SIG}
+	${CC} ${CFLAGS} -c ${SH}.c
 
-builtins: builtins.h builtins.c
-	${CC} ${CFLAGS} -c builtins.c
+$(BI): ${BI}.h ${BI}.c
+	${CC} ${CFLAGS} -c ${BI}.c
+
+$(SIG): ${SIG}.h ${SIG}.c
+	${CC} ${CFLAGS} -c ${SIG}.c
 
 options:
-	@echo "Compiling ${SHELLNAME}"
+	@echo "Compiling ${SH}"
 	@echo ""
 	@echo "Build options:"
 	@echo "CFLAGS   = ${CFLAGS}"
@@ -21,4 +26,4 @@ options:
 	@echo ""
 
 clean:
-	rm -f *.o ${SHELLNAME}
+	rm -f *.o ${SH}
